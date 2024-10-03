@@ -4,6 +4,7 @@ use colored::*;
 use dotenv::dotenv;
 use std::env;
 
+// Struct to hold the weather response from the API
 #[derive(Deserialize, Debug)]
 struct WeatherResponse {
     weather: Vec<Weather>,
@@ -12,11 +13,13 @@ struct WeatherResponse {
     name: String,
 }
 
+// Struct to hold weather description
 #[derive(Deserialize, Debug)]
 struct Weather {
     description: String,
 }
 
+// Struct to hold main weather data
 #[derive(Deserialize, Debug)]
 struct Main {
     temp: f64,
@@ -24,11 +27,13 @@ struct Main {
     pressure: f64,
 }
 
+// Struct to hold wind data
 #[derive(Deserialize, Debug)]
 struct Wind {
     speed: f64,
 }
 
+// Function to fetch weather information from the API
 fn get_weather_info(city: &str, country_code: &str, api_key: &str) -> Result<WeatherResponse, reqwest::Error> {
     let url = format!("https://api.openweathermap.org/data/2.5/weather?q={},{}&appid={}&units=metric", city, country_code, api_key);
     let response = reqwest::blocking::get(&url)?;
@@ -37,6 +42,7 @@ fn get_weather_info(city: &str, country_code: &str, api_key: &str) -> Result<Wea
     Ok(response_json)
 }
 
+// Function to display weather information
 fn display_weather_info(weather_info: &WeatherResponse) {
     let description: &String = &weather_info.weather[0].description;
     let temperature: f64 = weather_info.main.temp;
@@ -58,6 +64,7 @@ fn display_weather_info(weather_info: &WeatherResponse) {
         wind_speed,
     );
     
+    // Color the output based on weather description
     let weather_text_colored: ColoredString = match description.as_str() {
         "clear sky" => weather_text.bright_yellow(),
         "few clouds" | "scattered clouds" | "broken clouds" => weather_text.bright_blue(),
@@ -68,6 +75,7 @@ fn display_weather_info(weather_info: &WeatherResponse) {
     println!("{}", weather_text_colored);
 }
 
+// Function to load the API key from the .env file
 fn load_api_key() -> String {
     dotenv().ok();
     env::var("OPENWEATHER_API_KEY").expect("OPENWEATHER_API_KEY not set")
